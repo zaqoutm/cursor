@@ -1,16 +1,25 @@
+import { useState } from "react";
 import {
   AppBar,
   Box,
   Button,
   Container,
   Divider,
+  Drawer,
+  IconButton,
+  List,
+  ListItemButton,
+  ListItemText,
   Stack,
   Toolbar,
   Typography,
 } from "@mui/material";
+import MenuIcon from "@mui/icons-material/Menu";
+import CloseIcon from "@mui/icons-material/Close";
 import { Link, Route, Routes } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
+import SecuredPage from "./pages/SecuredPage";
 
 const navLinkStyles = {
   color: "text.secondary",
@@ -22,6 +31,11 @@ const navLinkStyles = {
 };
 
 export default function App() {
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  const closeMobileNav = () => setMobileNavOpen(false);
+  const openMobileNav = () => setMobileNavOpen(true);
+
   return (
     <Box
       sx={{
@@ -36,7 +50,7 @@ export default function App() {
       <AppBar position="sticky">
         <Container maxWidth="lg">
           <Toolbar sx={{ gap: 1, px: { xs: 0, sm: 1 } }}>
-            <Stack direction="row" spacing={1.5} alignitems="center" sx={{ flexGrow: 1 }}>
+            <Stack direction="row" spacing={1.5} sx={{ flexGrow: 1, alignItems: "center" }}>
               <Box
                 sx={{
                   width: 28,
@@ -54,12 +68,62 @@ export default function App() {
               </Box>
               <Typography variant="h6">Cursor App</Typography>
             </Stack>
-            <Button color="inherit" component={Link} to="/" sx={navLinkStyles}>
-              Home
-            </Button>
-            <Button color="inherit" component={Link} to="/about" sx={navLinkStyles}>
-              About
-            </Button>
+            <Stack direction="row" spacing={0.5} sx={{ display: { xs: "none", md: "flex" } }}>
+              <Button color="inherit" component={Link} to="/" sx={navLinkStyles}>
+                Home
+              </Button>
+              <Button color="inherit" component={Link} to="/about" sx={navLinkStyles}>
+                About
+              </Button>
+              <Button color="inherit" component={Link} to="/secured" sx={navLinkStyles}>
+                Secured
+              </Button>
+            </Stack>
+
+            <IconButton
+              aria-label="Open navigation menu"
+              onClick={openMobileNav}
+              color="inherit"
+              edge="end"
+              sx={{ display: { xs: "inline-flex", md: "none" } }}
+            >
+              <MenuIcon />
+            </IconButton>
+
+            <Drawer
+              anchor="right"
+              open={mobileNavOpen}
+              onClose={closeMobileNav}
+              slotProps={{
+                paper: {
+                  sx: {
+                    width: { xs: "min(86vw, 360px)", sm: 360 },
+                    bgcolor: "background.paper",
+                  },
+                },
+              }}
+            >
+              <Box sx={{ display: "flex", alignItems: "center", px: 2, py: 1.5 }}>
+                <Typography variant="subtitle1" sx={{ fontWeight: 600, flex: 1 }}>
+                  Menu
+                </Typography>
+                <IconButton aria-label="Close navigation menu" onClick={closeMobileNav}>
+                  <CloseIcon />
+                </IconButton>
+              </Box>
+              <Divider />
+              <List sx={{ py: 0 }}>
+                <ListItemButton component={Link} to="/" onClick={closeMobileNav}>
+                  <ListItemText primary="Home" />
+                </ListItemButton>
+                <ListItemButton component={Link} to="/about" onClick={closeMobileNav}>
+                  <ListItemText primary="About" />
+                </ListItemButton>
+                <ListItemButton component={Link} to="/secured" onClick={closeMobileNav}>
+                  <ListItemText primary="Secured" />
+                </ListItemButton>
+              </List>
+            </Drawer>
           </Toolbar>
         </Container>
       </AppBar>
@@ -70,6 +134,7 @@ export default function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
+            <Route path="/secured" element={<SecuredPage />} />
           </Routes>
         </Container>
       </Box>
@@ -87,10 +152,12 @@ export default function App() {
           <Stack
             direction={{ xs: "column", md: "row" }}
             spacing={3}
-            justifycontent="space-between"
-            alignitems={{ xs: "flex-start", md: "center" }}
+            sx={{
+              justifyContent: "space-between",
+              alignItems: { xs: "flex-start", md: "center" },
+            }}
           >
-            <Stack direction="row" spacing={1.5} alignitems="center">
+            <Stack direction="row" spacing={1.5} sx={{ alignItems: "center" }}>
               <Box
                 sx={{
                   width: 36,
@@ -126,6 +193,9 @@ export default function App() {
               </Button>
               <Button component={Link} to="/about" color="inherit" sx={navLinkStyles}>
                 About
+              </Button>
+              <Button component={Link} to="/secured" color="inherit" sx={navLinkStyles}>
+                Secured
               </Button>
             </Stack>
           </Stack>
