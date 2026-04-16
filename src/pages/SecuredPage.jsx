@@ -8,7 +8,7 @@ function isDigit(value) {
   return /^[0-9]$/.test(value);
 }
 
-export default function SecuredPage() {
+export default function SecuredPage({ t }) {
   const [pin, setPin] = React.useState(["", "", "", ""]);
   const [error, setError] = React.useState("");
   const [unlocked, setUnlocked] = React.useState(() => {
@@ -82,7 +82,7 @@ export default function SecuredPage() {
       e.preventDefault();
       if (currentPin.length !== 4) return;
       if (currentPin === EXPECTED_PIN) unlock();
-      else setError("Incorrect PIN. Try 0000.");
+      else setError(t.secured.pinError);
     }
   };
 
@@ -91,7 +91,7 @@ export default function SecuredPage() {
     const filled = pin.every((d) => d !== "");
     if (!filled) return;
     if (currentPin === EXPECTED_PIN) unlock();
-    else setError("Incorrect PIN. Try 0000.");
+    else setError(t.secured.pinError);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPin]);
 
@@ -101,10 +101,10 @@ export default function SecuredPage() {
         <CardContent>
           <Stack spacing={2.5} sx={{ p: { xs: 1, md: 3 } }}>
             <Typography variant="h3" component="h1">
-              Secured
+              {t.secured.title}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              You’re in. This content is protected by a simple numeric PIN.
+              {t.secured.unlockedDescription}
             </Typography>
             <Stack direction="row" spacing={1.5} style={{ gap: 5, alignItems: "center" }}>
             <Box
@@ -117,12 +117,12 @@ export default function SecuredPage() {
                 }}
               />
               <Typography variant="body2" color="text.secondary">
-                Status: Unlocked
+                {t.secured.statusUnlocked}
               </Typography>
             </Stack>
             <Box>
               <Button variant="outlined" onClick={lock}>
-                Lock
+                {t.actions.lock}
               </Button>
             </Box>
           </Stack>
@@ -137,10 +137,10 @@ export default function SecuredPage() {
         <Stack spacing={3} sx={{ p: { xs: 1, md: 3 }, maxWidth: 520 }}>
           <Stack spacing={1}>
             <Typography variant="h3" component="h1">
-              Secured
+              {t.secured.title}
             </Typography>
             <Typography variant="body1" color="text.secondary">
-              Enter the 4-digit PIN to continue.
+              {t.secured.lockedDescription}
             </Typography>
           </Stack>
 
@@ -155,7 +155,7 @@ export default function SecuredPage() {
               }}
             />
             <Typography variant="body2" color="text.secondary">
-              Status: Locked
+              {t.secured.statusLocked}
             </Typography>
           </Stack>
 
@@ -177,7 +177,7 @@ export default function SecuredPage() {
                   pattern: "[0-9]*",
                   maxLength: 1,
                   style: { textAlign: "center", fontSize: 20, padding: 0, height: 52 },
-                  "aria-label": `PIN digit ${idx + 1}`,
+                  "aria-label": `${t.secured.pinDigitLabel} ${idx + 1}`,
                 }}
                 sx={{
                   width: 64,
@@ -195,7 +195,7 @@ export default function SecuredPage() {
             color={error ? "error.main" : "text.secondary"}
             sx={{ minHeight: 22 }}
           >
-            {error || "Hint: the PIN is 0000."}
+            {error || t.secured.pinHint}
           </Typography>
 
           <Stack direction="row" spacing={1.5}>
@@ -204,14 +204,14 @@ export default function SecuredPage() {
               onClick={() => {
                 if (currentPin.length !== 4) return;
                 if (currentPin === EXPECTED_PIN) unlock();
-                else setError("Incorrect PIN. Try 0000.");
+                else setError(t.secured.pinError);
               }}
               disabled={currentPin.length !== 4}
             >
-              Unlock
+              {t.actions.unlock}
             </Button>
             <Button variant="outlined" onClick={reset}>
-              Clear
+              {t.actions.clear}
             </Button>
           </Stack>
         </Stack>

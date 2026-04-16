@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 
 const SECURED_SIM_KEY = "secured_check_sim"; // "pass" | "fail" | null
 
-export default function HomePage() {
+export default function HomePage({ t }) {
   const [status, setStatus] = useState("pass");
 
   useEffect(() => {
@@ -19,20 +19,19 @@ export default function HomePage() {
       <CardContent>
         <Stack spacing={3} sx={{ p: { xs: 1, md: 3 } }}>
           <Chip
-            label="Designed with Material UI"
+            label={t.home.chip}
             sx={{ alignSelf: "start", bgcolor: "rgba(0, 113, 227, 0.08)", color: "primary.main" }}
           />
           <Typography variant="h3" component="h1">
-            Home
+            {t.home.title}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            A clean landing page with softer neutrals, airy spacing, and a more Apple-inspired
-            visual tone.
+            {t.home.description}
           </Typography>
 
           <Stack spacing={1} sx={{ pt: 1 }}>
             <Typography variant="body2" color="text.secondary">
-              Simulation (affects the secured “middleware” check):
+              {t.home.simulationLabel}
             </Typography>
             <Stack direction="row" spacing={1.5} sx={{ flexWrap: "wrap" }}>
               <Button
@@ -47,7 +46,7 @@ export default function HomePage() {
                   }
                 }}
               >
-                Simulate 200 OK
+                {t.actions.simulateOk}
               </Button>
               <Button
                 variant="outlined"
@@ -61,16 +60,18 @@ export default function HomePage() {
                   }
                 }}
               >
-                Simulate failure
+                {t.actions.simulateFail}
               </Button>
 
             </Stack>
           </Stack>
 
           <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-            <h1 style={{ fontSize: 20, fontWeight: 600, color: status === "pass" ? "green" : "red" }}>{status}</h1>
+            <h1 style={{ fontSize: 20, fontWeight: 600, color: status === "pass" ? "green" : "red" }}>
+              {t.home.statusPrefix}: {status}
+            </h1>
             <Button href="/secured" variant="outlined">
-              Go to Secured
+              {t.actions.goToSecured}
             </Button>
           </div>
 

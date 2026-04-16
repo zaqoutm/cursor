@@ -3,7 +3,7 @@ import { Button, Card, CardContent, Stack, Typography } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
 import { animate, createTimeline, stagger } from "animejs";
 
-export default function ErrorPage() {
+export default function ErrorPage({ t }) {
   const location = useLocation();
   const details = location.state?.details;
   const containerRef = useRef(null);
@@ -75,10 +75,10 @@ export default function ErrorPage() {
             </Stack>
           </Stack>
           <Typography variant="h4" component="h1">
-            Page not found
+            {t.error.title}
           </Typography>
           <Typography variant="body1" color="text.secondary">
-            The page you requested does not exist, or you were redirected here after a failed check.
+            {t.error.description}
           </Typography>
           {details ? (
             <Typography variant="body2" color="text.secondary" sx={{ whiteSpace: "pre-wrap" }}>
@@ -87,7 +87,7 @@ export default function ErrorPage() {
           ) : null}
           <Stack direction="row" spacing={1.5} sx={{ flexWrap: "wrap" }}>
             <Button component={Link} to="/" variant="contained">
-              Back to Home
+              {t.actions.backHome}
             </Button>
           </Stack>
         </Stack>
