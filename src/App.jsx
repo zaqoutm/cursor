@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AppBar,
   Box,
@@ -7,6 +7,7 @@ import {
   Divider,
   Drawer,
   IconButton,
+  LinearProgress,
   List,
   ListItemButton,
   ListItemText,
@@ -16,10 +17,11 @@ import {
 } from "@mui/material";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
-import { Link, Route, Routes } from "react-router-dom";
+import { Link, Route, Routes, useLocation, useNavigate } from "react-router-dom";
 import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
 import SecuredPage from "./pages/SecuredPage";
+import ErrorPage from "./pages/ErrorPage";
 
 const navLinkStyles = {
   color: "text.secondary",
@@ -29,6 +31,90 @@ const navLinkStyles = {
     backgroundColor: "rgba(0, 0, 0, 0.04)",
   },
 };
+
+const SECURED_SIM_KEY = "secured_check_sim"; // "pass" | "fail" | null
+
+async function pingOk(url, { timeoutMs }) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+  try {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      signal: controller.signal,
+    });
+    return res.ok;
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+function SecuredGate() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const simMode = useMemo(() => {
+    try {
+      const v = localStorage.getItem(SECURED_SIM_KEY);
+      return v === "pass" || v === "fail" ? v : null;
+    } catch {
+      return null;
+    }
+  }, [location.key]);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    // check from storage 
+    async function run() {
+      if (!simMode) return;
+
+      if (simMode === "fail") {
+        navigate("/error", {
+          replace: true,
+          state: { details: "Simulation mode: 'fail' forced failure." },
+        });
+        return;
+      }
+
+      if (simMode === "pass") {
+        try {
+          // CORS-friendly public endpoint that reliably returns 200.
+          const ok = await pingOk("https://api.github.com/", { timeoutMs: 1_000 });
+          if (cancelled) return;
+          if (!ok) {
+            navigate("/error", {
+              replace: true,
+              state: { details: "HTTP check failed (non-2xx response)." },
+            });
+          }
+        } catch (err) {
+          if (cancelled) return;
+          navigate("/error", {
+            replace: true,
+            state: { details: `HTTP check failed: ${err?.name || "Unknown error"}` },
+          });
+        }
+      }
+
+      
+    }
+
+    run();
+    return () => {
+      cancelled = true;
+    };
+  }, [navigate, simMode]);
+
+  if (simMode === "pass") return <SecuredPage />;
+
+  // While the HTTP check is running, show a tiny loading state.
+  return (
+    <Box sx={{ py: 2 }}>
+      <LinearProgress />
+    </Box>
+  );
+}
 
 export default function App() {
   const [mobileNavOpen, setMobileNavOpen] = useState(false);
@@ -66,7 +152,9 @@ export default function App() {
               >
                 C
               </Box>
-              <Typography variant="h6">Cursor App</Typography>
+              <Button color="inherit" component={Link} to="/" sx={navLinkStyles}>
+                <Typography variant="h6">Cursor App</Typography>
+              </Button>
             </Stack>
             <Stack direction="row" spacing={0.5} sx={{ display: { xs: "none", md: "flex" } }}>
               <Button color="inherit" component={Link} to="/" sx={navLinkStyles}>
@@ -134,7 +222,9 @@ export default function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             <Route path="/about" element={<AboutPage />} />
-            <Route path="/secured" element={<SecuredPage />} />
+            <Route path="/secured" element={<SecuredGate />} />
+            <Route path="/error" element={<ErrorPage />} />
+            <Route path="*" element={<ErrorPage />} />
           </Routes>
         </Container>
       </Box>
@@ -174,12 +264,11 @@ export default function App() {
                 C
               </Box>
               <Box>
-                <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-                  Cursor App
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Minimal interface inspired by Apple’s light palette.
-                </Typography>
+                <Button color="inherit" component={Link} to="/" sx={navLinkStyles}>
+                  <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+                    Cursor App
+                  </Typography>
+                </Button>
               </Box>
             </Stack>
 
